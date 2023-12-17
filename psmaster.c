@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <inttypes.h>
 #include <iso646.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,9 +9,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <cdio/iso9660.h>
+#include <cdio/logging.h>
+
 #include "endian.h"
 #include "err.h"
-#include "errsql.h"
 #include "hexdump.h"
 #include "mapfile.h"
 #include "progname.h"
@@ -24,6 +27,8 @@ int main(int argc, char *argv[])
 {
 	char *filename = NULL;
 	int rc;
+
+	progname_init(argc, argv);
 	
 	while ((rc = getopt(argc, argv, "hf:")) != -1)
 		switch (rc) {

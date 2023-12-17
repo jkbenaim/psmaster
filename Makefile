@@ -18,7 +18,7 @@ all:	$(target) README
 
 .PHONY: clean
 clean:
-	rm -f $(target) $(objects) README
+	rm -f $(target) $(objects)
 
 .PHONY: install
 install: ${target} ${target}.1
