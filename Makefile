@@ -1,7 +1,7 @@
-target  ?= skel
+target  ?= psmaster
 objects := $(patsubst %.c,%.o,$(wildcard *.c))
 
-libs:=sqlite3
+libs:=libiso9660
 
 #EXTRAS += -fsanitize=bounds -fsanitize=undefined -fsanitize=null -fcf-protection=full -fstack-protector-all -fstack-check -Wimplicit-fallthrough -fanalyzer -Wall
 
