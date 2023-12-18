@@ -20,7 +20,7 @@ struct MappedFile_s {
 
 struct MappedFile_s MappedFile_Create(char *filename, size_t size);
 struct MappedFile_s MappedFile_Open(char *filename, bool writable);
-void MappedFile_Close(struct MappedFile_s m);
+struct MappedFile_s MappedFile_Close(struct MappedFile_s m);
 
 /* _MAPFILE_H_ */
 #endif

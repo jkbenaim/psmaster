@@ -157,12 +157,18 @@ out_ok:
 	return m;
 }
 
-void MappedFile_Close(struct MappedFile_s m)
+struct MappedFile_s MappedFile_Close(struct MappedFile_s m)
 {
 	FlushViewOfFile((LPCVOID) m.data, 0);
 	UnmapViewOfFile((LPCVOID) m.data);
 	CloseHandle(m._hMapping);
 	CloseHandle(m._hFile);
+
+	m.data = NULL;
+	m.size = 0;
+	m._hFile = NULL;
+	m._hMapping = NULL;
+	return m;
 }
 
 /* __MINGW32__ */
@@ -261,10 +267,15 @@ out_ok:
 	return m;
 }
 
-void MappedFile_Close(struct MappedFile_s m)
+struct MappedFile_s MappedFile_Close(struct MappedFile_s m)
 {
 	munmap(m.data, m.size);
 	close(m._fd);
+
+	m.data = NULL;
+	m.size = 0;
+	m._fd = -1;
+	return m;
 }
 
 /* __MINGW32__ */
