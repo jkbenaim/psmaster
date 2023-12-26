@@ -4,6 +4,27 @@
 #include <stdio.h>
 #include "hexdump.h"
 
+void hexdump_c(const void *buf, size_t siz)
+{
+	const uint8_t *mybuf = buf;
+	printf("const unsigned char buf[] = {\n");
+	size_t off = 0;
+	while (siz) {
+		unsigned numbytes;
+		size_t i;
+		numbytes = (siz>8)?8:siz;
+		printf("\t/* 0x%8zx */  ", off);
+		for (i = 0; i < numbytes; i++) {
+			printf("0x%02x, ", mybuf[i]);
+		}
+		printf("\n");
+		siz -= numbytes;
+		mybuf += numbytes;
+		off += numbytes;
+	}
+	printf("};\n");
+}
+
 void hexdump2(const void *buf, size_t siz, size_t off)
 {
 	const uint8_t *mybuf = buf;

@@ -1,9 +1,9 @@
 target  ?= psmaster
-objects := $(patsubst %.c,%.o,$(wildcard *.c))
+objects := $(patsubst %.c,%.o,$(wildcard *.c)) cnfparse.o data.o
 
 libs:=libiso9660
 
-#EXTRAS += -fsanitize=bounds -fsanitize=undefined -fsanitize=null -fcf-protection=full -fstack-protector-all -fstack-check -Wimplicit-fallthrough -fanalyzer -Wall
+EXTRAS += -fsanitize=bounds -fsanitize=undefined -fsanitize=null -fcf-protection=full -fstack-protector-all -fstack-check -Wimplicit-fallthrough -fanalyzer -Wall
 
 ifdef libs
 LDLIBS  += $(shell pkg-config --libs   ${libs})
@@ -32,5 +32,8 @@ uninstall:
 
 README: ${target}.1
 	MANWIDTH=77 man --nh --nj ./${target}.1 | col -b > $@
+
+data.o: data/logo_ntsc.bin data/logo_pal.bin
+	$(LD) -r -b binary data/* -o $@
 
 $(target): $(objects)
