@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include <cdio/iso9660.h>
+#include <cdio/udf.h>
 
 #include "data.h"
 #include "cnfparse.h"
@@ -55,15 +56,14 @@ struct prodmagic_s get_magic_for_prodid(char *prodid)
 	return retval;
 }
 
-// returns the product id (SCPH-12345) or NULL given an ISO filename
-char *get_prodid_from_systemcnf(const char *filename)
+// returns cnf for a given ISO filename
+struct systemcnf_s get_systemcnf(const char *filename)
 {
 	__label__ out_ok, out_error;
 
+	struct systemcnf_s cnf = {0,};
 	char systemcnf[SYSTEMCNF_MAX_SIZE + 1];
 	size_t systemcnf_size = 0;
-	char *prodid = NULL;
-	char *bootname = NULL;
 	iso9660_t *iso = NULL;
 	iso9660_stat_t *s = NULL;
 	long int lrc;
@@ -92,12 +92,30 @@ char *get_prodid_from_systemcnf(const char *filename)
 		systemcnf_size = SYSTEMCNF_MAX_SIZE;
 	systemcnf[systemcnf_size + 1] = '\0';
 
-	bootname = get_boot2_from_systemcnf(systemcnf, systemcnf_size);
-	if (!bootname) {
-		zErr = "couldn't find BOOT2 in system.cnf";
-		goto out_error;
+	cnf = parse_systemcnf(systemcnf, systemcnf_size);
+
+	goto out_ok;
+
+out_error:
+	if (zErr) {
+		warnx("in get_systemcnf: %s", zErr);
 	}
-	
+out_ok:
+	if (s)
+		iso9660_stat_free(s);
+	if (iso)
+		iso9660_close(iso);
+	return cnf;
+}
+
+// returns the product id (SCPH-12345) or NULL given an ISO filename
+char *get_prodid_from_boot2(const char *bootname)
+{
+	__label__ out_ok, out_error;
+
+	char *prodid = NULL;
+	char *zErr = NULL;
+
 	// validate bootname
 	bool bootname_valid = true;
 	bool bootname_long_enough = false;
@@ -175,18 +193,12 @@ char *get_prodid_from_systemcnf(const char *filename)
 	goto out_ok;
 
 out_error:
+	if (zErr) {
+		warnx("in get_prodid_from_bootname: %s", zErr);
+	}
 	free(prodid);
 	prodid = NULL;
 out_ok:
-	if (s)
-		iso9660_stat_free(s);
-	if (iso)
-		iso9660_close(iso);
-	if (bootname)
-		free(bootname);
-	if (zErr) {
-		warnx("in get_prodid_from_systemcnf: %s", zErr);
-	}
 	return prodid;
 }
 
@@ -320,13 +332,17 @@ int main(int argc, char *argv[])
 	memcpy(&md, m.data + 14*2048, 2048);
 	if (mode == MODE_LIST)
 		print_master(md);
+	
+	// get cnf
+	struct systemcnf_s cnf;
+	cnf = get_systemcnf(filename);
 
 	// get prodid
 	char *prodid = NULL;
 	if (force_productcode) {
 		prodid = strdup(force_productcode);
 	} else {
-		prodid = get_prodid_from_systemcnf(filename);
+		prodid = get_prodid_from_boot2(cnf.boot2);
 		if (!prodid) {
 			prodid = strdup(DEFAULT_PRODUCT_CODE);
 		}
@@ -371,8 +387,26 @@ int main(int argc, char *argv[])
 			strncpy(req.producer, force_producer, sizeof(req.producer));
 		if (force_date)
 			strncpy(req.date, force_date, sizeof(req.date));
-		req.region = region;			// FIXME
-		req.disctype = MASTER_DISCTYPE_CD;	// FIXME
+		if (region) {
+			req.region = region;
+		} else if (!strcmp(cnf.vmode, "NTSC")) {
+			req.region = MASTER_REGION_JAPAN;
+		} else if (!strcmp(cnf.vmode, "PAL")) {
+			req.region = MASTER_REGION_EUROPE;
+		} else {
+			req.region = MASTER_REGION_JAPAN;
+		}
+
+		// CD or DVD?
+		// We try to open it as UDF, and if that succeeds, we say it's a DVD.
+		req.disctype = MASTER_DISCTYPE_CD;
+		udf_t *udf;
+		udf = udf_open(filename);
+		if (udf) {
+			req.disctype = MASTER_DISCTYPE_DVD;
+			udf_close(udf);
+			udf = NULL;
+		}
 		req.size_in_bytes = m.size;
 
 		md = make_master(req);
@@ -381,7 +415,14 @@ int main(int argc, char *argv[])
 		
 		// logo
 		uint8_t logo[LOGO_SIZE];
-		memcpy(logo, logo_ntsc, LOGO_SIZE);
+		switch (req.region) {
+		case MASTER_REGION_EUROPE:
+			memcpy(logo, logo_pal, LOGO_SIZE);
+			break;
+		default:
+			memcpy(logo, logo_ntsc, LOGO_SIZE);
+			break;
+		}
 		// logo shift
 		for (size_t i = 0; i < LOGO_SIZE; i++) {
 			logo[i] = ((logo[i] << 5) | (logo[i] >> 3));

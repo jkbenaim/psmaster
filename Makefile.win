@@ -7,11 +7,11 @@ LIBCDIO_VERSION = 2.1.0
 LIBCDIO_NAME = libcdio-$(LIBCDIO_VERSION)
 
 target  ?= psmaster
-objects := $(patsubst %.c,%.o,$(wildcard *.c))
+objects := $(patsubst %.c,%.o,$(wildcard *.c)) cnfparse.o data.o
 
 #EXTRAS += -fsanitize=bounds -fsanitize=undefined -fsanitize=null -fcf-protection=full -fstack-protector-all -fstack-check -Wimplicit-fallthrough -fanalyzer -Wall
 
-LDLIBS += -lws2_32
+LDLIBS += -lws2_32 -lwinmm
 LDFLAGS += -static ${EXTRAS}
 CFLAGS  += -std=gnu2x -Og -ggdb -Ilibcdio-install/include ${EXTRAS}
 
@@ -26,20 +26,13 @@ clean:
 distclean: clean
 	rm -Rf libcdio-build libcdio-install $(LIBCDIO_NAME)
 
-.PHONY: install
-install: ${target} ${target}.1
-	install -m 755 ${target} /usr/local/bin
-	install -m 755 -d /usr/local/share/man/man1
-	install -m 644 ${target}.1 /usr/local/share/man/man1
-
-.PHONY: uninstall
-uninstall:
-	rm -f /usr/local/bin/${target} /usr/local/share/man/man1/${target}.1
-
 README: ${target}.1
 	MANWIDTH=77 man --nh --nj ./${target}.1 | col -b > $@
 
-$(target): $(objects) libcdio-install/lib/libiso9660.a libcdio-install/lib/libcdio.a
+data.o: data/logo_ntsc.bin data/logo_pal.bin
+	$(LD) -r -b binary data/* -o $@
+
+$(target): $(objects) libcdio-install/lib/libiso9660.a libcdio-install/lib/libudf.a libcdio-install/lib/libcdio.a
 
 ########################
 ########################
@@ -48,7 +41,7 @@ $(target): $(objects) libcdio-install/lib/libiso9660.a libcdio-install/lib/libcd
 ########################
 
 
-$(objects): libcdio-install/lib/libcdio.a libcdio-install/lib/libiso9660.a
+$(objects): libcdio-install/lib/libcdio.a libcdio-install/lib/libiso9660.a libcdio-install/lib/libudf.a
 
 
 libcdio-install/lib/libcdio.a libcdio-install/lib/libiso9660.a: libcdio-build/Makefile

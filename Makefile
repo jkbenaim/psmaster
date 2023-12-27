@@ -1,7 +1,7 @@
 target  ?= psmaster
 objects := $(patsubst %.c,%.o,$(wildcard *.c)) cnfparse.o data.o
 
-libs:=libiso9660
+libs:=libiso9660 libudf
 
 EXTRAS += -fsanitize=bounds -fsanitize=undefined -fsanitize=null -fcf-protection=full -fstack-protector-all -fstack-check -Wimplicit-fallthrough -fanalyzer -Wall
 

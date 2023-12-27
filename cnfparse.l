@@ -9,10 +9,13 @@
 enum scanfor_e {
 	SCANFOR_KEY,
 	SCANFOR_VAL_BOOT2,
+	SCANFOR_VAL_VER,
+	SCANFOR_VAL_VMODE,
+	SCANFOR_VAL_HDDUNITPOWER,
 	SCANFOR_VAL_OTHER,
 } scanfor = SCANFOR_KEY;
 
-char *boot2 = NULL;
+struct systemcnf_s cnf = {0,};
 
 %}
 %%
@@ -23,11 +26,31 @@ char *boot2 = NULL;
 	case SCANFOR_KEY:
 		if (!strcmp(yytext, "BOOT2")) {
 			scanfor = SCANFOR_VAL_BOOT2;
+		} else if (!strcmp(yytext, "VER")) {
+			scanfor = SCANFOR_VAL_VER;
+		} else if (!strcmp(yytext, "VMODE")) {
+			scanfor = SCANFOR_VAL_VMODE;
+		} else if (!strcmp(yytext, "HDDUNITPOWER")) {
+			scanfor = SCANFOR_VAL_HDDUNITPOWER;
+		} else {
+			scanfor = SCANFOR_VAL_OTHER;
 		}
 		break;
 	case SCANFOR_VAL_BOOT2:
-		if (!boot2)
-			boot2 = strdup(yytext);
+		if (!cnf.boot2)
+			cnf.boot2 = strdup(yytext);
+		break;
+	case SCANFOR_VAL_VER:
+		if (!cnf.ver)
+			cnf.ver = strdup(yytext);
+		break;
+	case SCANFOR_VAL_VMODE:
+		if (!cnf.vmode)
+			cnf.vmode = strdup(yytext);
+		break;
+	case SCANFOR_VAL_HDDUNITPOWER:
+		if (!cnf.hddunitpower)
+			cnf.hddunitpower = strdup(yytext);
 		break;
 	case SCANFOR_VAL_OTHER:
 		/* fall thru */
@@ -51,15 +74,14 @@ char *boot2 = NULL;
 }
 %%
 
-char *get_boot2_from_systemcnf(void *buf, size_t siz)
+struct systemcnf_s parse_systemcnf(void *buf, size_t siz)
 {
+
 	FILE *f = NULL;
 
 	f = fmemopen(buf, siz, "r");
 	if (!f)
 		err(1, "couldn't open file");
-
-	boot2 = NULL;
 
 	yyin = f;
 	yylex();
@@ -67,5 +89,14 @@ char *get_boot2_from_systemcnf(void *buf, size_t siz)
 	fclose(f);
 	f = NULL;
 	yylex_destroy();
-	return boot2;
+
+	return cnf;
+}
+
+void free_systemcnf(struct systemcnf_s cnf)
+{
+	free(cnf.boot2);
+	free(cnf.ver);
+	free(cnf.vmode);
+	free(cnf.hddunitpower);
 }

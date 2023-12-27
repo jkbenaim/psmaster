@@ -19,8 +19,8 @@ const char *region_to_string(enum master_region_e r)
 		return "USA";
 	case MASTER_REGION_EUROPE:
 		return "Europe";
-	case MASTER_REGION_WORLD:
-		return "World";
+	case MASTER_REGION_CHINA:
+		return "China";
 	default:
 		return "unknown";
 	}

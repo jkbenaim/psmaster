@@ -11,7 +11,7 @@ enum master_region_e {
 	MASTER_REGION_JAPAN = 1,
 	MASTER_REGION_USA = 2,
 	MASTER_REGION_EUROPE = 4,
-	MASTER_REGION_WORLD = 7,
+	MASTER_REGION_CHINA = 8,
 };
 
 enum record_type_e {
