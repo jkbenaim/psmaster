@@ -143,7 +143,7 @@ struct master_data_s make_master(struct master_request_s req)
 	// record C
 	md.rec[num].a = 1;
 	md.rec[num].b = htole32(0x4b);
-	md.rec[num].c = htole32(0x14a);
+	md.rec[num].c = htole32(0x104a);
 	md.rec[num].d = htole32(req.prodmagic.magic2);
 	md.rec[num].e = req.prodmagic.magic1;
 	md.rec[num].f = htole16(0);
