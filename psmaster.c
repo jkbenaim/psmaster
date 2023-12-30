@@ -17,7 +17,6 @@
 #include "cnfparse.h"
 #include "endian.h"
 #include "err.h"
-#include "hexdump.h"
 #include "mapfile.h"
 #include "master.h"
 #include "progname.h"
@@ -380,7 +379,6 @@ int main(int argc, char *argv[])
 			printf("good logo (pal)\n");
 		} else {
 			printf("logo is bad\n");
-			hexdump(logo, 512);
 		}
 	} else if (mode == MODE_BLESS) {
 		// master data

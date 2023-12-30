@@ -5,7 +5,6 @@
 #include <time.h>
 #include "endian.h"
 #include "err.h"
-#include "hexdump.h"
 #include "master.h"
 #include "version.h"
 
@@ -206,7 +205,6 @@ void print_master(struct master_data_s m)
 			printf("cd region filled with all spaces (ok)\n");
 		} else {
 			printf("cd region NOT filled with all spaces (bad)\n");
-			hexdump(m.cd_spaces, sizeof(m.cd_spaces));
 		}
 		break;
 	case MASTER_DISCTYPE_DVD:
@@ -222,7 +220,6 @@ void print_master(struct master_data_s m)
 			printf("dvd pad region filled with all spaces (ok)\n");
 		} else {
 			printf("dvd pad region NOT filled with all spaces (bad)\n");
-			hexdump(m.dvd_spaces, sizeof(m.dvd_spaces));
 		}
 		break;
 	default:
@@ -254,6 +251,5 @@ void print_master(struct master_data_s m)
 		printf("unk828: \tall spaces (ok)\n");
 	} else {
 		printf("unk828: \tNOT all spaces (bad)\n");
-		//hexdump(m.unk828, sizeof(m.unk828));
 	}
 }
