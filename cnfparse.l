@@ -77,17 +77,11 @@ struct systemcnf_s cnf = {0,};
 struct systemcnf_s parse_systemcnf(void *buf, size_t siz)
 {
 
-	FILE *f = NULL;
+	if (!buf || !siz)
+		return cnf;
 
-	f = fmemopen(buf, siz, "r");
-	if (!f)
-		err(1, "couldn't open file");
-
-	yyin = f;
+	yy_scan_bytes(buf, siz);
 	yylex();
-
-	fclose(f);
-	f = NULL;
 	yylex_destroy();
 
 	return cnf;

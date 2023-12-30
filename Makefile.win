@@ -13,10 +13,12 @@ objects := $(patsubst %.c,%.o,$(wildcard *.c)) cnfparse.o data.o
 
 LDLIBS += -lws2_32 -lwinmm
 LDFLAGS += -static ${EXTRAS}
-CFLAGS  += -std=gnu2x -Og -ggdb -Ilibcdio-install/include ${EXTRAS}
+CFLAGS  += -flto -std=gnu2x -Og -ggdb -Ilibcdio-install/include ${EXTRAS}
 
 .PHONY: all
 all:	$(target) README
+	strip $(target).exe
+	upx $(target).exe
 
 .PHONY: clean
 clean:
