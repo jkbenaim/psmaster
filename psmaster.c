@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 	char *force_producer = NULL;
 	long region = 0;
 
-	while ((rc = getopt(argc, argv, "bhld:p:P:r:")) != -1)
+	while ((rc = getopt(argc, argv, "bhld:p:P:r:V")) != -1)
 		switch (rc) {
 		case 'h':
 			usage();
@@ -294,6 +294,10 @@ int main(int argc, char *argv[])
 			default:
 				break;
 			}
+			break;
+		case 'V':
+			fprintf(stderr, "%s\n", PROG_VERSION);
+			exit(0);
 			break;
 		default:
 			tryhelp(NULL);
@@ -463,19 +467,19 @@ noreturn static void usage(void)
 {
 	(void)fprintf(stderr,
 "Usage: %s [OPTION] [FILE]\n"
-"Perform some action on FILE.\n"
+"Given a PlayStation 2 disc image, show or create its master data.\n"
 "\n"
 "  -h       print this help text\n"
 "  -l       print master data from FILE\n"
 "  -b       create new master data in FILE\n"
 "  -d DATE  use DATE as date (format: YYYYMMDD)\n"
-"  -p PCODE use PCODE as product code\n"
+"  -p PCODE use PCODE as product code (format: ABCD-12345)\n"
 "  -P NAME  use NAME as producer\n"
 "  -r NUM   set disc region number. valid regions:\n"
 "               1 - Japan\n"
 "               2 - USA\n"
 "               4 - Europe\n"
-"               7 - World\n"
+"               8 - China\n"
 "\n"
 "Please report any bugs to <" PROG_EMAIL ">.\n"
 ,		__progname

@@ -8,40 +8,46 @@ SYNOPSIS
        psmaster [-h|-V]
 
 DESCRIPTION
-       psmaster extracts files from an SGI CD image, or an EFS file system.
+       psmaster can "master patch" a PlayStation 2 disc image given in
+       FILE, allowing it to be run on a TEST console.
 
-       Silicon Graphics (SGI) was a computer company that existed from 1981
-       to 2009. During this period, they shipped software for their
-       computers, sometimes on CD, and often not using the standard ISO9660
-       file system.  These discs are instead simply hard disc images
-       pressed to CD. Thus, they have an SGI disk label and an EFS
-       partition.
-
-       Most systems cannot understand this sort of disc format. This tool
-       was developed to allow non-SGI systems to at least be able to
-       extract files from such discs.
+       Sony produced a special set of PlayStation 2 consoles, called TEST
+       systems. These systems differ from retail models primarily in their
+       ability to play games from CD-R and DVD-R media, allowing copied
+       games to be run. However, these consoles will only recognize burned
+       media as valid if they contain "master data" in sectors 12 and 13 of
+       the disc.  These sectors are zeroed out on all retail games. Using
+       psmaster, it is possible to patch a retail disc image to contain
+       master data, allowing the image to be burned to disc and run on a
+       PlayStation 2 TEST console.
 
 OPTIONS
        -h     Print a usage message on standard output and exit
 	      successfully.
 
-       -l     List files without extracting.
+       -l     List master data from FILE.
 
-       -L     List partitions and bootfiles from the volume header.
+       -b     Create new master data in FILE.
 
-       -o ARCHIVE
-	      Instead of extracting, create a tar archive ARCHIVE
-	      containing all files from the image.
+       -d DATE
+	      Use DATE as the master data creation date, instead of the
+	      current date. The date format is YYYYMMDD.
 
-       -p NUM Use partition number NUM (default: 7).
+       -p PCODE
+	      Use PCODE as the game product code, instead of auto-
+	      detecting.  The product code format is ABCD-12345.
 
-       -q     Do not show file listing while extracting.
+       -P NAME
+	      Use NAME as the producer name in the master data.
 
-       -W     Instead of extracting, scan the image for `inst' packages and
-	      list them.
+       -r NUM Set the disc region by number. Valid region numbers are:
 
-       -V     Print version information on standard output and exit
-	      successfully.
+	      1 Japan
+	      2 America
+	      4 Europe
+	      8 China
+
+       -V     Print version information on standard output and exit successfully.
 
 AUTHOR
        Jason Benaim <jrra@jrra.zone>
@@ -53,6 +59,6 @@ COPYRIGHT
        There is NO WARRANTY, to the extent permitted by law.
 
 SEE ALSO
-       iso-read(1), isoinfo(1)
+       psps(1)
 
 								psmaster(1)
