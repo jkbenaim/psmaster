@@ -1,7 +1,7 @@
 psmaster(1)		  General Commands Manual		psmaster(1)
 
 NAME
-       psmaster - perform some action
+       psmaster - master patch a PlayStation 2 disc image
 
 SYNOPSIS
        psmaster [OPTION] [FILE]
